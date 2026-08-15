@@ -77,16 +77,16 @@ namespace libmorton {
 	// Figuring this out is probably too costly in most cases.
 	template<typename morton, typename coord>
 	inline morton m2D_e_sLUT_ET(const coord x, const coord y) {
-		morton answer_x = compute2D_ET_LUT_encode<morton, coord>(x, Morton2D_encode_x_256);
-		morton answer_y = compute2D_ET_LUT_encode<morton, coord>(y, Morton2D_encode_y_256);
+		morton answer_x = compute2D_ET_LUT_encode<morton, coord>(x, reinterpret_cast<const coord*>(Morton2D_encode_x_256));
+		morton answer_y = compute2D_ET_LUT_encode<morton, coord>(y, reinterpret_cast<const coord*>(Morton2D_encode_y_256));
 		return answer_y | answer_x;
 	}
 
 	// ENCODE 2D Morton code : LUT (Early termination version)
 	template<typename morton, typename coord>
 	inline morton m2D_e_LUT_ET(const coord x, const coord y) {
-		morton answer_x = compute2D_ET_LUT_encode<morton, coord>(x, Morton2D_encode_x_256);
-		morton answer_y = compute2D_ET_LUT_encode<morton, coord>(y, Morton2D_encode_x_256);
+		morton answer_x = compute2D_ET_LUT_encode<morton, coord>(x, reinterpret_cast<const coord*>(Morton2D_encode_x_256));
+		morton answer_y = compute2D_ET_LUT_encode<morton, coord>(y, reinterpret_cast<const coord*>(Morton2D_encode_y_256));
 		return (answer_y << 1) | answer_x;
 	}
 

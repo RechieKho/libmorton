@@ -79,9 +79,9 @@ namespace libmorton {
 	// Figuring this out is probably too costly in most cases.
 	template<typename morton, typename coord>
 	inline morton m3D_e_sLUT_ET(const coord x, const coord y, const coord z) {
-		morton answer_x = compute3D_ET_LUT_encode<morton, coord>(x, Morton3D_encode_x_256);
-		morton answer_y = compute3D_ET_LUT_encode<morton, coord>(y, Morton3D_encode_y_256);
-		morton answer_z = compute3D_ET_LUT_encode<morton, coord>(z, Morton3D_encode_z_256);
+		morton answer_x = compute3D_ET_LUT_encode<morton, coord>(x, reinterpret_cast<const coord*>(Morton3D_encode_x_256));
+		morton answer_y = compute3D_ET_LUT_encode<morton, coord>(y, reinterpret_cast<const coord*>(Morton3D_encode_y_256));
+		morton answer_z = compute3D_ET_LUT_encode<morton, coord>(z, reinterpret_cast<const coord*>(Morton3D_encode_z_256));
 		return answer_z | answer_y | answer_x;
 	}
 
@@ -90,9 +90,9 @@ namespace libmorton {
 	// Figuring this out is probably too costly in most cases.
 	template<typename morton, typename coord>
 	inline morton m3D_e_LUT_ET(const coord x, const coord y, const coord z) {
-		morton answer_x = compute3D_ET_LUT_encode<morton, coord>(x, Morton3D_encode_x_256);
-		morton answer_y = compute3D_ET_LUT_encode<morton, coord>(y, Morton3D_encode_x_256);
-		morton answer_z = compute3D_ET_LUT_encode<morton, coord>(z, Morton3D_encode_x_256);
+		morton answer_x = compute3D_ET_LUT_encode<morton, coord>(x, reinterpret_cast<const coord*>(Morton3D_encode_x_256));
+		morton answer_y = compute3D_ET_LUT_encode<morton, coord>(y, reinterpret_cast<const coord*>(Morton3D_encode_y_256));
+		morton answer_z = compute3D_ET_LUT_encode<morton, coord>(z, reinterpret_cast<const coord*>(Morton3D_encode_z_256));
 		return (answer_z << 2) | (answer_y << 1) | answer_x;
 	}
 
