@@ -97,7 +97,7 @@ namespace libmorton {
 		unsigned long maxbit = 0;
 		if (findFirstSetBit<coord>(c, &maxbit) == 0) { return 0; }
 		// highest byte index containing any set bit
-		int highest_byte = static_cast<int>((maxbit - 1) / 8);
+		int highest_byte = static_cast<int>((maxbit + 1) / 8);
 		morton answer = 0;
 		for (int i = highest_byte; i >= 0; --i) {
 			unsigned int shift = i * 8;
