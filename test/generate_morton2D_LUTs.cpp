@@ -39,30 +39,69 @@ int main() {
     const size_t total = 1 << bits;
 
     // 16-bit encode tables used in the project are uint_fast16_t for 2D
-    uint_fast32_t* x_enc = (uint_fast32_t*)std::malloc(total * sizeof(uint_fast32_t));
-    uint_fast32_t* y_enc = (uint_fast32_t*)std::malloc(total * sizeof(uint_fast32_t));
+    uint_fast32_t* preshifted_x_enc_32 = (uint_fast32_t*)std::malloc(total * sizeof(uint_fast32_t));
+    uint_fast32_t* preshifted_y_enc_32 = (uint_fast32_t*)std::malloc(total * sizeof(uint_fast32_t));
     for (uint_fast32_t i = 0; i < total; ++i) {
-        x_enc[i] = (uint_fast32_t)m2D_e_magicbits<uint_fast32_t, uint_fast32_t>(i, 0);
-        y_enc[i] = (uint_fast32_t)m2D_e_magicbits<uint_fast32_t, uint_fast32_t>(0, i);
+        preshifted_x_enc_32[i] = (uint_fast32_t)m2D_e_magicbits<uint_fast32_t, uint_fast32_t>(i, 0);
+        preshifted_y_enc_32[i] = (uint_fast32_t)m2D_e_magicbits<uint_fast32_t, uint_fast32_t>(0, i);
     }
 
-    // decode tables for 2D (65536 entries if using 16-bit index? but project uses 256->512 pattern)
-    // For 2D decode the test uses 16-entry? We'll generate 65536 decode entries would be huge.
-    // The project's 2D decode LUT in other files uses 256 entries for shifted lookups (uint_fast8_t[256])
-    // We'll generate decode LUT of size 256 for x and y using morton2D decoding helper.
+    uint_fast64_t* preshifted_x_enc_64 = (uint_fast64_t*)std::malloc(total * sizeof(uint_fast64_t));
+    uint_fast64_t* preshifted_y_enc_64 = (uint_fast64_t*)std::malloc(total * sizeof(uint_fast64_t));
+    for (uint_fast64_t i = 0; i < total; ++i) {
+        preshifted_x_enc_64[i] = (uint_fast64_t)m2D_e_magicbits<uint_fast64_t, uint_fast32_t>(i, 0);
+        preshifted_y_enc_64[i] = (uint_fast64_t)m2D_e_magicbits<uint_fast64_t, uint_fast32_t>(0, i);
+    }
+
+    uint_fast32_t* x_enc_32 = (uint_fast32_t*)std::malloc(total * sizeof(uint_fast32_t));
+    uint_fast32_t* y_enc_32 = (uint_fast32_t*)std::malloc(total * sizeof(uint_fast32_t));
+    for (uint_fast32_t i = 0; i < total; ++i) {
+        x_enc_32[i] = (uint_fast32_t)morton2D_SplitBy2Bits<uint_fast32_t, uint_fast32_t>(i);
+        y_enc_32[i] = (uint_fast32_t)morton2D_SplitBy2Bits<uint_fast32_t, uint_fast32_t>(i);
+    }
+
+    uint_fast64_t* x_enc_64 = (uint_fast64_t*)std::malloc(total * sizeof(uint_fast64_t));
+    uint_fast64_t* y_enc_64 = (uint_fast64_t*)std::malloc(total * sizeof(uint_fast64_t));
+    for (uint_fast64_t i = 0; i < total; ++i) {
+        x_enc_64[i] = (uint_fast64_t)morton2D_SplitBy2Bits<uint_fast64_t, uint_fast32_t>(i);
+        y_enc_64[i] = (uint_fast64_t)morton2D_SplitBy2Bits<uint_fast64_t, uint_fast32_t>(i);
+    }
+
+    // decode tables for 2D
     const size_t dtotal = 256;
     uint_fast8_t* dx = (uint_fast8_t*)std::malloc(dtotal * sizeof(uint_fast8_t));
     uint_fast8_t* dy = (uint_fast8_t*)std::malloc(dtotal * sizeof(uint_fast8_t));
     for (size_t i = 0; i < dtotal; ++i) {
-        uint_fast32_t xx = 0, yy = 0;
-        m2D_d_for((uint_fast32_t)i, xx, yy);
-        dx[i] = (uint_fast8_t)xx;
-        dy[i] = (uint_fast8_t)yy;
+        dx[i] = (uint_fast8_t)morton2D_GetSecondBits<uint_fast64_t, uint_fast32_t>(i);
+        dy[i] = (uint_fast8_t)morton2D_GetSecondBits<uint_fast64_t, uint_fast32_t>(i);
     }
 
-    std::cout << "// 2D Encode LUTs (256 entries)" << std::endl;
-    print_hex_array("Morton2D_encode_x_256", x_enc, total);
-    print_hex_array("Morton2D_encode_y_256", y_enc, total);
+    uint_fast8_t* preshifted_dx = (uint_fast8_t*)std::malloc(dtotal * sizeof(uint_fast8_t));
+    uint_fast8_t* preshifted_dy = (uint_fast8_t*)std::malloc(dtotal * sizeof(uint_fast8_t));
+    for (size_t i = 0; i < dtotal; ++i) {
+        preshifted_dx[i] = (uint_fast8_t)morton2D_GetSecondBits<uint_fast64_t, uint_fast32_t>(i);
+        preshifted_dy[i] = (uint_fast8_t)morton2D_GetSecondBits<uint_fast64_t, uint_fast32_t>(i >> 1);
+    }
+
+    std::cout << "// preshifted 2D Encode LUTs (32-bit)" << std::endl;
+    print_hex_array("Morton2D_encode_preshifted_x_256_32", preshifted_x_enc_32, total);
+    print_hex_array("Morton2D_encode_preshifted_y_256_32", preshifted_y_enc_32, total);
+
+    std::cout << "// preshifted 2D Encode LUTs (64-bit)" << std::endl;
+    print_hex_array("Morton2D_encode_preshifted_x_256_64", preshifted_x_enc_64, total);
+    print_hex_array("Morton2D_encode_preshifted_y_256_64", preshifted_y_enc_64, total);
+
+    std::cout << "// 2D Encode LUTs (32-bit)" << std::endl;
+    print_hex_array("Morton2D_encode_x_256_32", x_enc_32, total);
+    print_hex_array("Morton2D_encode_y_256_32", y_enc_32, total);
+
+    std::cout << "// 2D Encode LUTs (64-bit)" << std::endl;
+    print_hex_array("Morton2D_encode_x_256_64", x_enc_64, total);
+    print_hex_array("Morton2D_encode_y_256_64", y_enc_64, total);
+
+    std::cout << "// preshifted 2D Decode LUTs (256 entries)" << std::endl;
+    print_decode_array("Morton2D_decode_preshifted_x_256", preshifted_dx, dtotal);
+    print_decode_array("Morton2D_decode_preshifted_y_256", preshifted_dy, dtotal);
 
     std::cout << "// 2D Decode LUTs (256 entries)" << std::endl;
     print_decode_array("Morton2D_decode_x_256", dx, dtotal);
