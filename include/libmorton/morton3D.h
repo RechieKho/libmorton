@@ -218,9 +218,9 @@ namespace libmorton {
 	// DECODE 3D Morton code : Shifted LUT
 	template<typename morton, typename coord>
 	inline void m3D_d_sLUT(const morton m, coord& x, coord& y, coord& z) {
-		x = morton3D_DecodeCoord_LUT256<morton, coord>(m, Morton3D_decode_x_512_gen, 0);
-		y = morton3D_DecodeCoord_LUT256<morton, coord>(m, Morton3D_decode_y_512_gen, 0);
-		z = morton3D_DecodeCoord_LUT256<morton, coord>(m, Morton3D_decode_z_512_gen, 0);
+		x = morton3D_DecodeCoord_LUT256<morton, coord>(m, Morton3D_decode_preshifted_x_512_gen, 0);
+		y = morton3D_DecodeCoord_LUT256<morton, coord>(m, Morton3D_decode_preshifted_y_512_gen, 0);
+		z = morton3D_DecodeCoord_LUT256<morton, coord>(m, Morton3D_decode_preshifted_z_512_gen, 0);
 	}
 
 	// DECODE 3D Morton code : LUT
@@ -241,9 +241,9 @@ namespace libmorton {
 		unsigned int shiftback = 0;
 		while (firstbit_location > i) {
 			morton m_shifted = (m >> i) & NINEBITMASK;
-			x |= (coord)Morton3D_decode_x_512_gen[m_shifted] << shiftback;
-			y |= (coord)Morton3D_decode_y_512_gen[m_shifted] << shiftback;
-			z |= (coord)Morton3D_decode_z_512_gen[m_shifted] << shiftback;
+			x |= (coord)Morton3D_decode_preshifted_x_512_gen[m_shifted] << shiftback;
+			y |= (coord)Morton3D_decode_preshifted_y_512_gen[m_shifted] << shiftback;
+			z |= (coord)Morton3D_decode_preshifted_z_512_gen[m_shifted] << shiftback;
 			shiftback += 3;
 			i += 9;
 		}
