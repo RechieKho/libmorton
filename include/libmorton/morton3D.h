@@ -92,14 +92,16 @@ namespace libmorton {
 	}
 
 	// HELPER METHOD for ET LUT encode
-	template<typename morton, typename coord>
-	inline morton compute3D_ET_LUT_encode(const coord c, const coord *LUT) {
+	template<typename morton, typename coord, typename lutT>
+	inline morton compute3D_ET_LUT_encode(const coord c, const lutT *LUT) {
 		unsigned long maxbit = 0;
 		if (findFirstSetBit<coord>(c, &maxbit) == 0) { return 0; }
+		// highest byte index containing any set bit
+		int highest_byte = static_cast<int>((maxbit - 1) / 8);
 		morton answer = 0;
-		for (int i = (int)ceil((maxbit + 1) / 8.0f); i >= 0; --i) {
+		for (int i = highest_byte; i >= 0; --i) {
 			unsigned int shift = i * 8;
-			answer = answer << 24 | (LUT[(c >> shift) & EIGHTBITMASK]);
+			answer = (answer << 24) | static_cast<morton>(LUT[(c >> shift) & EIGHTBITMASK]);
 		}
 		return answer;
 	}
@@ -109,17 +111,17 @@ namespace libmorton {
 	// Figuring this out is probably too costly in most cases.
 	template<typename morton, typename coord>
 	inline morton m3D_e_sLUT_ET(const coord x, const coord y, const coord z) {
-		morton answer_x = compute3D_ET_LUT_encode<morton, coord>(x, reinterpret_cast<const coord*>(Morton3D_encode_x_256_32));
-		morton answer_y = compute3D_ET_LUT_encode<morton, coord>(y, reinterpret_cast<const coord*>(Morton3D_encode_y_256_32));
-		morton answer_z = compute3D_ET_LUT_encode<morton, coord>(z, reinterpret_cast<const coord*>(Morton3D_encode_z_256_32));
+		morton answer_x = compute3D_ET_LUT_encode<morton, coord, uint_fast32_t>(x, Morton3D_encode_x_256_32);
+		morton answer_y = compute3D_ET_LUT_encode<morton, coord, uint_fast32_t>(y, Morton3D_encode_y_256_32);
+		morton answer_z = compute3D_ET_LUT_encode<morton, coord, uint_fast32_t>(z, Morton3D_encode_z_256_32);
 		return answer_z | answer_y | answer_x;
 	}
 
 	template<typename morton, typename coord, typename = std::enable_if_t<std::is_same<coord, uint_fast64_t>::value>>
 	inline morton m3D_e_sLUT_ET(const coord x, const coord y, const coord z) {
-		morton answer_x = compute3D_ET_LUT_encode<morton, coord>(x, reinterpret_cast<const coord*>(Morton3D_encode_x_256_64));
-		morton answer_y = compute3D_ET_LUT_encode<morton, coord>(y, reinterpret_cast<const coord*>(Morton3D_encode_y_256_64));
-		morton answer_z = compute3D_ET_LUT_encode<morton, coord>(z, reinterpret_cast<const coord*>(Morton3D_encode_z_256_64));
+		morton answer_x = compute3D_ET_LUT_encode<morton, coord, uint_fast64_t>(x, Morton3D_encode_x_256_64);
+		morton answer_y = compute3D_ET_LUT_encode<morton, coord, uint_fast64_t>(y, Morton3D_encode_y_256_64);
+		morton answer_z = compute3D_ET_LUT_encode<morton, coord, uint_fast64_t>(z, Morton3D_encode_z_256_64);
 		return answer_z | answer_y | answer_x;
 	}
 
@@ -128,17 +130,17 @@ namespace libmorton {
 	// Figuring this out is probably too costly in most cases.
 	template<typename morton, typename coord>
 	inline morton m3D_e_LUT_ET(const coord x, const coord y, const coord z) {
-		morton answer_x = compute3D_ET_LUT_encode<morton, coord>(x, reinterpret_cast<const coord*>(Morton3D_encode_x_256_32));
-		morton answer_y = compute3D_ET_LUT_encode<morton, coord>(y, reinterpret_cast<const coord*>(Morton3D_encode_y_256_32));
-		morton answer_z = compute3D_ET_LUT_encode<morton, coord>(z, reinterpret_cast<const coord*>(Morton3D_encode_z_256_32));
+		morton answer_x = compute3D_ET_LUT_encode<morton, coord, uint_fast32_t>(x, Morton3D_encode_x_256_32);
+		morton answer_y = compute3D_ET_LUT_encode<morton, coord, uint_fast32_t>(y, Morton3D_encode_x_256_32);
+		morton answer_z = compute3D_ET_LUT_encode<morton, coord, uint_fast32_t>(z, Morton3D_encode_x_256_32);
 		return (answer_z << 2) | (answer_y << 1) | answer_x;
 	}
 
 	template<typename morton, typename coord, typename = std::enable_if_t<std::is_same<coord, uint_fast64_t>::value>>
 	inline morton m3D_e_LUT_ET(const coord x, const coord y, const coord z) {
-		morton answer_x = compute3D_ET_LUT_encode<morton, coord>(x, reinterpret_cast<const coord*>(Morton3D_encode_x_256_64));
-		morton answer_y = compute3D_ET_LUT_encode<morton, coord>(y, reinterpret_cast<const coord*>(Morton3D_encode_y_256_64));
-		morton answer_z = compute3D_ET_LUT_encode<morton, coord>(z, reinterpret_cast<const coord*>(Morton3D_encode_z_256_64));
+		morton answer_x = compute3D_ET_LUT_encode<morton, coord, uint_fast64_t>(x, Morton3D_encode_x_256_64);
+		morton answer_y = compute3D_ET_LUT_encode<morton, coord, uint_fast64_t>(y, Morton3D_encode_x_256_64);
+		morton answer_z = compute3D_ET_LUT_encode<morton, coord, uint_fast64_t>(z, Morton3D_encode_x_256_64);
 		return (answer_z << 2) | (answer_y << 1) | answer_x;
 	}
 
