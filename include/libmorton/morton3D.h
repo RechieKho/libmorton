@@ -131,6 +131,8 @@ namespace libmorton {
 	template<typename morton, typename coord>
 	inline morton m3D_e_LUT_ET(const coord x, const coord y, const coord z) {
 		morton answer_x = compute3D_ET_LUT_encode<morton, coord, uint_fast32_t>(x, Morton3D_encode_x_256_32);
+		// This is because `Morton3D_encode_(y|z)_256_*` is basically just `Morton3D_encode_x_256_*` with some pre-shifting.
+		// And we don't want any pre-shifting in this case.
 		morton answer_y = compute3D_ET_LUT_encode<morton, coord, uint_fast32_t>(y, Morton3D_encode_x_256_32);
 		morton answer_z = compute3D_ET_LUT_encode<morton, coord, uint_fast32_t>(z, Morton3D_encode_x_256_32);
 		return (answer_z << 2) | (answer_y << 1) | answer_x;
@@ -139,6 +141,8 @@ namespace libmorton {
 	template<typename morton, typename coord, typename = std::enable_if_t<std::is_same<coord, uint_fast64_t>::value>>
 	inline morton m3D_e_LUT_ET(const coord x, const coord y, const coord z) {
 		morton answer_x = compute3D_ET_LUT_encode<morton, coord, uint_fast64_t>(x, Morton3D_encode_x_256_64);
+		// This is because `Morton3D_encode_(y|z)_256_*` is basically just `Morton3D_encode_x_256_*` with some pre-shifting.
+		// And we don't want any pre-shifting in this case.
 		morton answer_y = compute3D_ET_LUT_encode<morton, coord, uint_fast64_t>(y, Morton3D_encode_x_256_64);
 		morton answer_z = compute3D_ET_LUT_encode<morton, coord, uint_fast64_t>(z, Morton3D_encode_x_256_64);
 		return (answer_z << 2) | (answer_y << 1) | answer_x;
